@@ -7,25 +7,16 @@
 AIP este o platformă educațională dedicată mediului academic. Utilizează un LLM propriu (in-house) pentru a structura materialele de studiu, oferind un mediu de învățare adaptabil, protejat prin filtrarea surselor[cite: 2].
 
 ## 2. Arhitectura și Tehnologii
-- **Backend API:** Python (FastAPI) cu sistem de prioritizare a cererilor (ex: task-uri rapide din extensii vs. procesare documente mari).
-- **Procesare AI (LLM Propriu):** Model open-source antrenat in-house pe baza unei arhitecturi de tip encoder-decoder. Implementare inițială prin RAG (Continuous Learning) pe documente universitare, urmată de fine-tuning.
-- **Infrastructură:** Dezvoltare locală (modele cuantizate). Producție bazată pe arhitecturi Serverless GPU susținute prin credite educaționale sau infrastructură universitară.
+- **Backend API:** Python (FastAPI).
+- **Memorie Vectorială:** ChromaDB local și modele de embedding HuggingFace (`all-MiniLM-L6-v2`).
+- **Infrastructură:** Dezvoltare locală cu pipeline RAG funcțional.
 
-## 3. Module Principale (Core Features)
-1. **Sistem de Ingestie (Encoder):** Vectorizarea materialelor studenților și profesorilor[cite: 2].
-2. **Strict Source Mode:** LLM-ul răspunde exclusiv pe baza materialelor verificate[cite: 2].
-3. **Confidence Score:** Sistem adversarial de validare folosind similaritatea cosinusoidală între răspuns și sursele multiple, combinată cu entropia decodorului[cite: 2]. 
-4. **Generator de Output Personalizat (Decodoare):**
-   - Instant Summaries[cite: 2].
-   - Text-to-Audio (Podcasts)[cite: 2].
-   - Adaptive Quizzes & Learning Plans[cite: 2].
-5. **Browser Extensions:** Micro-frontend-uri care interoghează direct LLM-ul central pentru funcții de productivitate, gramatică și traduceri rapide[cite: 2].
+## 3. Module Implementate
+1. **Agentul de Ingestie:** Endpoint de upload, extragere text (PyPDF), partiționare (LangChain) și vectorizare[cite: 2].
+2. **Stocare:** Bază de date vectorială persistentă pentru stocarea pe termen lung a cunoștințelor.
+3. **Agentul de Extragere (Strict Source Mode):** Endpoint de căutare a similarității care returnează cele mai relevante 3 fragmente din documentele validate[cite: 2].
 
-## 4. Structura de Bază a Proiectului
-```text
+## 4. Structura Curentă
 /aip-backend
-  /api          # Rute FastAPI și cozi de prioritizare
-  /core         # Logica LLM (RAG, Strict Source Mode, Confidence Score)
-  /models       # Structuri de date 
-  /vector_db    # Integrarea bazei de date vectoriale
-  /extensions   # API endpoints pentru extensiile de browser
+  /chroma_db    # Baza de date vectorială (persistentă)
+  main.py       # API Core
