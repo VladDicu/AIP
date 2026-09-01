@@ -21,8 +21,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-os.environ["GEMINI_API_KEY"] = "" # Pune cheia ta!
+os.environ["GEMINI_API_KEY"] = "" # Lasă gol pentru GitHub, vom seta cheia în Render!
 client = genai.Client()
+
+# Sistemul de Fallback Automat
+def generate_with_fallback(contents, config):
+    models_to_try = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"]
+    
+    for model_id in models_to_try:
+        try:
+            return client.models.generate_content(
+                model=model_id,
+                contents=contents,
+                config=config
+            )
+        except Exception as e:
+            if "503" in str(e) or "UNAVAILABLE" in str(e):
+                continue
+            raise e
+            
+    raise Exception("Toate serverele AI sunt momentan suprasolicitate. Reîncearcă în câteva secunde.")
 
 class QueryRequest(BaseModel):
     query: str
@@ -40,7 +58,6 @@ async def upload_document(file: UploadFile = File(...)):
         text = ""
         filename = file.filename.lower()
         
-        # Extracție inteligentă în funcție de extensie
         if filename.endswith(".pdf"):
             reader = PdfReader(io.BytesIO(content))
             text = "".join([page.extract_text() or "" for page in reader.pages])
@@ -67,11 +84,9 @@ async def upload_document(file: UploadFile = File(...)):
                         if row_text:
                             text += " | ".join(row_text) + "\n"
         else:
-            # Fallback universal pentru absolut orice alt fișier (TXT, MD, cod, etc.)
             try:
                 text = content.decode('utf-8')
             except UnicodeDecodeError:
-                # Dacă dă eroare (ex: imagine/binar încărcat din greșeală), forțăm citirea fără să crăpăm serverul
                 text = content.decode('latin-1', errors='ignore')
 
         if not text.strip():
@@ -87,8 +102,6 @@ async def upload_document(file: UploadFile = File(...)):
 
 @app.post("/api/ask")
 def process_query(request: QueryRequest):
-    model_id = "gemini-3.6-flash" 
-    
     if request.strict_mode:
         sys_instruct = "Ești un asistent academic. Răspunde STRICT pe baza contextului oferit."
         prompt = f"Context:\n{request.context}\n\nÎntrebare: {request.query}"
@@ -101,8 +114,7 @@ def process_query(request: QueryRequest):
         confidence_msg = "Evaluat de AI in text"
 
     try:
-        response = client.models.generate_content(
-            model=model_id,
+        response = generate_with_fallback(
             contents=prompt,
             config=types.GenerateContentConfig(system_instruction=sys_instruct, temperature=temp)
         )
@@ -115,12 +127,10 @@ def fast_action(request: ActionRequest):
     if not request.context:
         return {"error": "Încarcă un document mai întâi."}
         
-    model_id = "gemini-3.6-flash"
-    
     if request.action_type == "summary":
         prompt = f"Extrage un rezumat clar, în 3-5 idei principale, din:\n{request.context}"
         try:
-            response = client.models.generate_content(model=model_id, contents=prompt, config=types.GenerateContentConfig(temperature=0.3))
+            response = generate_with_fallback(contents=prompt, config=types.GenerateContentConfig(temperature=0.3))
             return {"answer": response.text}
         except Exception as e:
             return {"error": str(e)}
@@ -139,7 +149,7 @@ def fast_action(request: ActionRequest):
         {request.context}"""
         
         try:
-            response = client.models.generate_content(model=model_id, contents=prompt, config=types.GenerateContentConfig(temperature=0.2))
+            response = generate_with_fallback(contents=prompt, config=types.GenerateContentConfig(temperature=0.2))
             raw_text = response.text.strip()
             if raw_text.startswith("```json"): raw_text = raw_text[7:-3].strip()
             elif raw_text.startswith("```"): raw_text = raw_text[3:-3].strip()
