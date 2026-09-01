@@ -1,0 +1,14 @@
+{
+  "en": {
+    "title": "AIP Educational Platform",
+    "upload": "Upload Course (PDF)",
+    "strict_mode": "Strict Source Mode",
+    "ask": "Ask AI"
+  },
+  "ro": {
+    "title": "Platforma Educațională AIP",
+    "upload": "Încărcare Curs (PDF)",
+    "strict_mode": "Mod Sursă Strictă",
+    "ask": "Întreabă AI-ul"
+  }
+}
