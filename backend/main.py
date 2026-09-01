@@ -15,14 +15,18 @@ app = FastAPI(title="AIP Backend Core")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], 
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-os.environ["GEMINI_API_KEY"] = "" # Lasă gol pentru GitHub, vom seta cheia în Render!
-client = genai.Client()
+os.environ["GEMINI_API_KEY"] = "GEMINI_API_KEY" # Lasă gol pentru GitHub, vom seta cheia în Render!
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("ATENȚIE: Cheia GEMINI_API_KEY nu a fost găsită de server!")
+    
+client = genai.Client(api_key=api_key)
 
 # Sistemul de Fallback Automat
 def generate_with_fallback(contents, config):
