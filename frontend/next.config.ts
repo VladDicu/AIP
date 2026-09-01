@@ -6,8 +6,7 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
-  },
-  serverExternalPackages: ["@clerk/nextjs"],
+  }
 };
 
 export default nextConfig;
