@@ -21,7 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-os.environ["GEMINI_API_KEY"] = "" # Lasă gol pentru GitHub, vom seta cheia în Render!
+os.environ["GEMINI_API_KEY"] = "GEMINI_API_KEY" # Lasă gol pentru GitHub, vom seta cheia în Render!
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise ValueError("ATENȚIE: Cheia GEMINI_API_KEY nu a fost găsită de server!")
