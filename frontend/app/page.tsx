@@ -28,7 +28,7 @@ export default function Home() {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/upload", { method: "POST", body: formData });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, { method: "POST", body: formData });
       const data = await res.json();
       if (data.extracted_text) {
         setPdfContext(data.extracted_text);
@@ -47,7 +47,7 @@ export default function Home() {
     setMessages((prev) => [...prev, { role: "user", content: actionLabel }]);
     setIsLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/action", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ context: pdfContext, action_type: type }),
@@ -75,7 +75,7 @@ export default function Home() {
     setQuestion("");
     setIsLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/ask", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: newMsg.content, strict_mode: strictMode, context: pdfContext }),
