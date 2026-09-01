@@ -22,7 +22,11 @@ app.add_middleware(
 )
 
 os.environ["GEMINI_API_KEY"] = "" # Lasă gol pentru GitHub, vom seta cheia în Render!
-client = genai.Client()
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("ATENȚIE: Cheia GEMINI_API_KEY nu a fost găsită de server!")
+    
+client = genai.Client(api_key=api_key)
 
 # Sistemul de Fallback Automat
 def generate_with_fallback(contents, config):
